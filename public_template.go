@@ -1,9 +1,11 @@
 package pgtpm
 
 import (
+	"fmt"
 	"math/big"
 
 	"github.com/google/go-tpm/tpm2"
+	"github.com/google/go-tpm/tpmutil"
 )
 
 // PublicTemplate marshals/unmarshals to/from the JSON-encoding of a
@@ -40,6 +42,7 @@ type ECCParams struct {
 // SymCipherParams represents parameters of a symmetric cipher TPM object.
 type SymCipherParams struct {
 	Symmetric *SymScheme `json:"symmetric,omitempty"`
+	Unique    string     `json:"unique,omitempty"`
 }
 
 // KeyedHashParams represents parameters of a keyed hash TPM object.
@@ -164,6 +167,11 @@ func (p SymCipherParams) ToPublic() *tpm2.SymCipherParams {
 
 	if p.Symmetric != nil {
 		rv.Symmetric = p.Symmetric.ToPublic()
+	}
+
+	if p.Unique != "" {
+		fmt.Println("Setting unique field to ", p.Unique)
+		rv.Unique = tpmutil.U16Bytes([]byte(p.Unique))
 	}
 
 	return rv
